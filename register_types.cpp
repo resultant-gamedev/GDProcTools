@@ -2,12 +2,12 @@
 
 #include "register_types.h"
 #include "object_type_db.h"
-#include "GDPerlin.h"
+#include "gdperlin.h"
 
-void register_GDPerlin_types() {
-        ObjectTypeDB::register_type<GDPerlin>();
+void register_gdperlin_types() {
+        ObjectTypeDB::register_type<gdperlin>();
 }
 
-void unregister_GDPerlin_types() {
+void unregister_gdperlin_types() {
 
 }
