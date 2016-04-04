@@ -4,10 +4,10 @@
 #include "object_type_db.h"
 #include "GDPerlin.h"
 
-void register_GodotPerlin_types() {
+void register_GDPerlin_types() {
         ObjectTypeDB::register_type<GDPerlin>();
 }
 
-void unregister_GodotPerlin_types() {
+void unregister_GDPerlin_types() {
 
 }
