@@ -102,6 +102,73 @@ float GDPerlin::noise(float sample_x, float sample_y, float sample_z)
 	return value;
 }
 
+Dictionary GDPerlin::getSimpleNoiseMap(int width, int height, float scale, int seed) {
+    Dictionary noiseMap = memnew(Dictionary);
+
+    if (scale <= 0.0f) {
+        scale = 0.0001f;
+    }
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            float sampleX = x / scale;
+            float sampleY = y / scale;
+
+            float perlinValue = noise(sampleX, sampleY, seed);
+			noiseMap[Vector2(x, y)] = perlinValue;
+        }
+    }
+
+    return noiseMap;
+}
+
+Image GDPerlin::getNoiseImage(int width, int height, Dictionary noiseMap) {
+    Image noiseImage = Image(width, height, false, Image::FORMAT_RGB);
+
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < width; j++) {
+            Color color = Color(0, 0, 128, 1).linear_interpolate(Color(1, 1, 1, 1), noiseMap[Vector2(i, j)]);
+            noiseImage.put_pixel(i, j, color);
+        }
+    }
+
+    return noiseImage;
+}
+
+Variant GDPerlin::getTextureFromImage(Image img)
+{
+    //ImageTexture imgTexture = memnew(ImageTexture);
+    Variant imgTexture = memnew(Variant("ImageTexture"));
+    imgTexture.call("create_from_image", img);
+
+    return imgTexture;
+}
+
+Variant GDPerlin::getMaterialFromTexture(Variant texture) {
+
+    Variant material = memnew(Variant("FixedMaterial"));
+    material.call("set_texture", FixedMaterial::PARAM_DIFFUSE, texture);
+
+    return material;
+}
+
+    /*
+    func materialFromImage(image):
+    	var texture = ImageTexture.new()
+    	texture.create_from_image(image)
+    	#texture.set_flags(0)
+
+    	var mat = FixedMaterial.new()
+    	mat.set_texture(FixedMaterial.PARAM_DIFFUSE, texture)
+    	#mat.set_light_shader(FixedMaterial.LIGHT_SHADER_TOON)
+
+    	return mat
+    */
+
 void GDPerlin::_bind_methods() {
-    ObjectTypeDB::bind_method("noise",&GDPerlin::add);
+    ObjectTypeDB::bind_method("noise",&GDPerlin::noise);
+    ObjectTypeDB::bind_method("getSimpleNoiseMap",&GDPerlin::getSimpleNoiseMap);
+    ObjectTypeDB::bind_method("getNoiseImage",&GDPerlin::getNoiseImage);
+    ObjectTypeDB::bind_method("getTextureFromImage",&GDPerlin::getTextureFromImage);
+    ObjectTypeDB::bind_method("getMaterialFromTexture",&GDPerlin::getMaterialFromTexture);
 }
