@@ -9,7 +9,7 @@
 class GDPerlin : public Reference
 {
     OBJ_TYPE(GDPerlin, Reference);
-
+    
 public:
     // Constructor
     GDPerlin();
