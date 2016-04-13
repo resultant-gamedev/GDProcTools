@@ -1,2 +1,2 @@
-# GodotPerlin
-Perlin Noise for Godot (recommended for procedural generation)
+# GDProcTools
+Tools for Procedural Generation in Godot
