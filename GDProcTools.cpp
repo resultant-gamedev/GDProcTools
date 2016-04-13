@@ -5,13 +5,13 @@
  * Author: Chris Little
  */
 
-#include "GDPerlin.h"
+#include "GDProcTools.h"
 
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
 
-GDPerlin::GDPerlin() {
+GDProcTools::GDProcTools() {
 	srand(time(NULL));
 
 	p = new int[256];
@@ -38,7 +38,7 @@ GDPerlin::GDPerlin() {
 	}
 }
 
-GDPerlin::~GDPerlin()
+GDProcTools::~GDProcTools()
 {
 	delete p;
 	delete Gx;
@@ -47,7 +47,7 @@ GDPerlin::~GDPerlin()
 }
 
 
-float GDPerlin::noise(float sample_x, float sample_y, float sample_z)
+float GDProcTools::noise(float sample_x, float sample_y, float sample_z)
 {
 	// Unit cube vertex coordinates surrounding the sample point
 	int x0 = int(floorf(sample_x));
@@ -102,7 +102,7 @@ float GDPerlin::noise(float sample_x, float sample_y, float sample_z)
 	return value;
 }
 
-Dictionary GDPerlin::getSimpleNoiseMap(int width, int height, float scale, int seed) {
+Dictionary GDProcTools::getSimpleNoiseMap(int width, int height, float scale, int seed) {
     Dictionary noiseMap = memnew(Dictionary);
 
     if (scale <= 0.0f) {
@@ -122,7 +122,7 @@ Dictionary GDPerlin::getSimpleNoiseMap(int width, int height, float scale, int s
     return noiseMap;
 }
 
-Image GDPerlin::getNoiseImage(int width, int height, Dictionary noiseMap) {
+Image GDProcTools::getNoiseImage(int width, int height, Dictionary noiseMap) {
     Image noiseImage = Image(width, height, false, Image::FORMAT_RGB);
 
     for (int i = 0; i < width; i++) {
@@ -135,7 +135,7 @@ Image GDPerlin::getNoiseImage(int width, int height, Dictionary noiseMap) {
     return noiseImage;
 }
 
-Ref<ImageTexture> GDPerlin::getTextureFromImage(Image img)
+Ref<ImageTexture> GDProcTools::getTextureFromImage(Image img)
 {
 	Ref<ImageTexture> imgTexture = memnew(ImageTexture);
 	imgTexture->set_flags(0);
@@ -144,7 +144,7 @@ Ref<ImageTexture> GDPerlin::getTextureFromImage(Image img)
     return imgTexture;
 }
 
-Ref<FixedMaterial> GDPerlin::getMaterialFromTexture(Ref<ImageTexture> texture)
+Ref<FixedMaterial> GDProcTools::getMaterialFromTexture(Ref<ImageTexture> texture)
 {
     Ref<FixedMaterial> material = memnew(FixedMaterial);
     material->set_texture(FixedMaterial::PARAM_DIFFUSE, texture);
@@ -152,7 +152,7 @@ Ref<FixedMaterial> GDPerlin::getMaterialFromTexture(Ref<ImageTexture> texture)
     return material;
 }
 
-Ref<FixedMaterial> GDPerlin::getNoiseMaterial(int width, int height, Dictionary noiseMap)
+Ref<FixedMaterial> GDProcTools::getNoiseMaterial(int width, int height, Dictionary noiseMap)
 {
 	Image noiseImage = getNoiseImage(width, height, noiseMap);
 	Ref<ImageTexture> noiseTexture = getTextureFromImage(noiseImage);
@@ -161,7 +161,7 @@ Ref<FixedMaterial> GDPerlin::getNoiseMaterial(int width, int height, Dictionary 
 	return noiseMaterial;
 }
 
-Ref<Mesh> GDPerlin::generateMeshFromMap(int width, int height, Dictionary heightMap, int heightMultiplier, float heightCurve)
+Ref<Mesh> GDProcTools::generateMeshFromMap(int width, int height, Dictionary heightMap, int heightMultiplier, float heightCurve)
 {
 	Ref<SurfaceTool> surf_tool = memnew(SurfaceTool);
 	Ref<Mesh> mesh = memnew(Mesh);
@@ -202,14 +202,14 @@ Ref<Mesh> GDPerlin::generateMeshFromMap(int width, int height, Dictionary height
 	return mesh;
 }
 
-void GDPerlin::_bind_methods()
+void GDProcTools::_bind_methods()
 {
-    ObjectTypeDB::bind_method(_MD("noise","x","y","z"),&GDPerlin::noise);
-    ObjectTypeDB::bind_method(_MD("getSimpleNoiseMap","width", "height", "scale", "seed"),&GDPerlin::getSimpleNoiseMap);
-	ObjectTypeDB::bind_method(_MD("getNoiseMaterial","width", "height", "noise map"),&GDPerlin::getNoiseMaterial);
-	ObjectTypeDB::bind_method(_MD("generateMeshFromMap", "width", "height", "height map", "height multiplier", "height curve"),&GDPerlin::generateMeshFromMap);
+    ObjectTypeDB::bind_method(_MD("noise","x","y","z"),&GDProcTools::noise);
+    ObjectTypeDB::bind_method(_MD("getSimpleNoiseMap","width", "height", "scale", "seed"),&GDProcTools::getSimpleNoiseMap);
+	ObjectTypeDB::bind_method(_MD("getNoiseMaterial","width", "height", "noise map"),&GDProcTools::getNoiseMaterial);
+	ObjectTypeDB::bind_method(_MD("generateMeshFromMap", "width", "height", "height map", "height multiplier", "height curve"),&GDProcTools::generateMeshFromMap);
 
-	ObjectTypeDB::bind_method(_MD("getNoiseImage", "width", "height", "noise map"),&GDPerlin::getNoiseImage);
-    ObjectTypeDB::bind_method(_MD("getTextureFromImage", "noise"),&GDPerlin::getTextureFromImage);
-    ObjectTypeDB::bind_method(_MD("getMaterialFromTexture", "texture"),&GDPerlin::getMaterialFromTexture);
+	ObjectTypeDB::bind_method(_MD("getNoiseImage", "width", "height", "noise map"),&GDProcTools::getNoiseImage);
+    ObjectTypeDB::bind_method(_MD("getTextureFromImage", "noise"),&GDProcTools::getTextureFromImage);
+    ObjectTypeDB::bind_method(_MD("getMaterialFromTexture", "texture"),&GDProcTools::getMaterialFromTexture);
 }

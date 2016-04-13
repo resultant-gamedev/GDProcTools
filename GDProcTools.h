@@ -8,8 +8,8 @@
  * Author: Chris Little
  */
 
-#ifndef GDPERLIN_H_
-#define GDPERLIN_H_
+#ifndef GDPROCTOOLS_H_
+#define GDPROCTOOLS_H_
 
 #include "reference.h"
 #include "variant.h"
@@ -24,12 +24,12 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/surface_tool.h"
 
-class GDPerlin : public Reference {
-    OBJ_TYPE(GDPerlin, Reference);
+class GDProcTools : public Reference {
+    OBJ_TYPE(GDProcTools, Reference);
 
 public:
-	GDPerlin();
-	~GDPerlin();
+	GDProcTools();
+	~GDProcTools();
 
 	// Generates a Perlin (smoothed) noise value between -1 and 1, at the given 3D position.
 	float noise(float sample_x, float sample_y, float sample_z);

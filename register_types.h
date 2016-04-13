@@ -1,4 +1,4 @@
 /* register_types.h */
 
-void register_GDPerlin_types();
-void unregister_GDPerlin_types();
+void register_GDProcTools_types();
+void unregister_GDProcTools_types();

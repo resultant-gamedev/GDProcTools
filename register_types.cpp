@@ -2,12 +2,12 @@
 
 #include "register_types.h"
 #include "object_type_db.h"
-#include "GDPerlin.h"
+#include "GDProcTools.h"
 
-void register_GDPerlin_types() {
-        ObjectTypeDB::register_type<GDPerlin>();
+void register_GDProcTools_types() {
+        ObjectTypeDB::register_type<GDProcTools>();
 }
 
-void unregister_GDPerlin_types() {
+void unregister_GDProcTools_types() {
 
 }
