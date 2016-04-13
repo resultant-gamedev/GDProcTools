@@ -127,7 +127,7 @@ Image GDPerlin::getNoiseImage(int width, int height, Dictionary noiseMap) {
 
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < width; j++) {
-            Color color = Color(0, 0, 128, 1).linear_interpolate(Color(1, 1, 1, 1), noiseMap[Vector2(i, j)]);
+            Color color = Color(0, 0, 0, 1).linear_interpolate(Color(1, 1, 1, 1), noiseMap[Vector2(i, j)]);
             noiseImage.put_pixel(i, j, color);
         }
     }
@@ -135,40 +135,81 @@ Image GDPerlin::getNoiseImage(int width, int height, Dictionary noiseMap) {
     return noiseImage;
 }
 
-Variant GDPerlin::getTextureFromImage(Image img)
+Ref<ImageTexture> GDPerlin::getTextureFromImage(Image img)
 {
-    //ImageTexture imgTexture = memnew(ImageTexture);
-    Variant imgTexture = memnew(Variant("ImageTexture"));
-    imgTexture.call("create_from_image", img);
+	Ref<ImageTexture> imgTexture = memnew(ImageTexture);
+	imgTexture->set_flags(0);
+    imgTexture->create_from_image(img);
 
     return imgTexture;
 }
 
-Variant GDPerlin::getMaterialFromTexture(Variant texture) {
-
-    Variant material = memnew(Variant("FixedMaterial"));
-    material.call("set_texture", FixedMaterial::PARAM_DIFFUSE, texture);
+Ref<FixedMaterial> GDPerlin::getMaterialFromTexture(Ref<ImageTexture> texture)
+{
+    Ref<FixedMaterial> material = memnew(FixedMaterial);
+    material->set_texture(FixedMaterial::PARAM_DIFFUSE, texture);
 
     return material;
 }
 
-    /*
-    func materialFromImage(image):
-    	var texture = ImageTexture.new()
-    	texture.create_from_image(image)
-    	#texture.set_flags(0)
+Ref<FixedMaterial> GDPerlin::getNoiseMaterial(int width, int height, Dictionary noiseMap)
+{
+	Image noiseImage = getNoiseImage(width, height, noiseMap);
+	Ref<ImageTexture> noiseTexture = getTextureFromImage(noiseImage);
+	Ref<FixedMaterial> noiseMaterial = getMaterialFromTexture(noiseTexture);
 
-    	var mat = FixedMaterial.new()
-    	mat.set_texture(FixedMaterial.PARAM_DIFFUSE, texture)
-    	#mat.set_light_shader(FixedMaterial.LIGHT_SHADER_TOON)
+	return noiseMaterial;
+}
 
-    	return mat
-    */
+Ref<Mesh> GDPerlin::generateMeshFromMap(int width, int height, Dictionary heightMap, int heightMultiplier, float heightCurve)
+{
+	Ref<SurfaceTool> surf_tool = memnew(SurfaceTool);
+	Ref<Mesh> mesh = memnew(Mesh);
 
-void GDPerlin::_bind_methods() {
-    ObjectTypeDB::bind_method("noise",&GDPerlin::noise);
-    ObjectTypeDB::bind_method("getSimpleNoiseMap",&GDPerlin::getSimpleNoiseMap);
-    ObjectTypeDB::bind_method("getNoiseImage",&GDPerlin::getNoiseImage);
-    ObjectTypeDB::bind_method("getTextureFromImage",&GDPerlin::getTextureFromImage);
-    ObjectTypeDB::bind_method("getMaterialFromTexture",&GDPerlin::getMaterialFromTexture);
+	surf_tool->begin(Mesh::PRIMITIVE_TRIANGLES);
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			if (x < width - 1 && y < height - 1)
+			{
+				surf_tool->add_uv(Vector2(x / float(width), y / float(height)));
+				surf_tool->add_vertex(Vector3(x, Math::ease(heightMap[Vector2(x, y)], heightCurve) * heightMultiplier, y));
+
+				surf_tool->add_uv(Vector2((x+1) / float(width), (y+1) / float(height)));
+				surf_tool->add_vertex(Vector3(x+1, Math::ease(heightMap[Vector2(x+1, y+1)], heightCurve) * heightMultiplier, y+1));
+
+				surf_tool->add_uv(Vector2(x / float(width), (y+1) / float(height)));
+				surf_tool->add_vertex(Vector3(x, Math::ease(heightMap[Vector2(x, y+1)], heightCurve) * heightMultiplier, y+1));
+
+				surf_tool->add_uv(Vector2((x+1) / float(width), (y) / float(height)));
+				surf_tool->add_vertex(Vector3(x+1, Math::ease(heightMap[Vector2(x+1, y)], heightCurve) * heightMultiplier, y));
+
+				surf_tool->add_uv(Vector2((x+1) / float(width), (y+1) / float(height)));
+				surf_tool->add_vertex(Vector3(x+1, Math::ease(heightMap[Vector2(x+1, y+1)], heightCurve) * heightMultiplier, y+1));
+
+				surf_tool->add_uv(Vector2(x / float(width), y / float(height)));
+				surf_tool->add_vertex(Vector3(x, Math::ease(heightMap[Vector2(x, y)], heightCurve) * heightMultiplier, y));
+			}
+		}
+	}
+
+	surf_tool->index();
+	surf_tool->generate_normals();
+	surf_tool->commit(mesh);
+
+	return mesh;
+}
+
+void GDPerlin::_bind_methods()
+{
+    ObjectTypeDB::bind_method(_MD("noise","x","y","z"),&GDPerlin::noise);
+    ObjectTypeDB::bind_method(_MD("getSimpleNoiseMap","width", "height", "scale", "seed"),&GDPerlin::getSimpleNoiseMap);
+	ObjectTypeDB::bind_method(_MD("getNoiseMaterial","width", "height", "noise map"),&GDPerlin::getNoiseMaterial);
+	ObjectTypeDB::bind_method(_MD("generateMeshFromMap", "width", "height", "height map", "height multiplier", "height curve"),&GDPerlin::generateMeshFromMap);
+
+	ObjectTypeDB::bind_method(_MD("getNoiseImage", "width", "height", "noise map"),&GDPerlin::getNoiseImage);
+    ObjectTypeDB::bind_method(_MD("getTextureFromImage", "noise"),&GDPerlin::getTextureFromImage);
+    ObjectTypeDB::bind_method(_MD("getMaterialFromTexture", "texture"),&GDPerlin::getMaterialFromTexture);
 }
